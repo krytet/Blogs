@@ -37,6 +37,7 @@ class Subscriptions(models.Model):
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+        unique_together = 'subscriber', 'writer'
     
     def __str__(self):
         return f'{self.subscriber} подписан на {self.writer}'
@@ -59,6 +60,7 @@ class ReadEnd(models.Model):
     class Meta:
         verbose_name = 'Прочитаный пост'
         verbose_name_plural = 'Прочитаные посты'
+        unique_together = 'author', 'subscription','post'
     
     def __str__(self):
         return f'{self.author} прочитал: {self.post}'

@@ -1,12 +1,20 @@
 
 {% extends "base.html" %}
-{% block title %} Профиль {{ user }} {% endblock %}
+{% block title %} Профиль {{ user_profile }} {% endblock %}
 
 {% block content %}
 <h1>Profile</h1>
 <div class="profile">
     <div class="profile-list">
-        <h1>{{ user }}</h1>
+        <h1>{{ user_profile }}</h1>
+        <h2>{{ user_profile.first_name }} {{ user_profile.last_name }}</h2>
+        <h3>Постов: {{ user_profile.post.count }}</h3>
+        <h3>Подписчиков: {{ user_profile.writer.count }}; Подписок: {{ user_profile.subscriber.count }}</h3>
+        {% if following %}
+            <a href="{% url 'un-follow-user'  user_profile.username %}" role="button">Отписаться</a>
+        {% else %}
+            <a href="{% url 'follow-user' user_profile.username %}" role="button">Подписаться</a>
+        {% endif %}
 
     </div>
     <div class="post-list">

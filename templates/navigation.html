@@ -7,10 +7,9 @@
         <a class="nav-link" href="{% url 'user-profile' user.username %}">Моя страница</a>
         <a class="nav-link" href="{% url 'subscriptions' %}">Подписки</a>
         <a class="nav-link" href="{% url 'new-post' %}">Новый пост</a>
-        <a class="nav-link" href="{% url 'index' %}">Выйти</a>
+        <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
         {% else %}
-        <a class="nav-link" href="{% url 'index' %}">Войти</a> |
-        <a class="nav-link" href="{% url 'index' %}">Регистрация</a>
+        <a class="nav-link" href="{% url 'login' %}">Войти</a> |
         {% endif %}
     </nav>
 </nav>

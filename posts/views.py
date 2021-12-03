@@ -43,10 +43,12 @@ class UserProfile(DetailView):
 
     def get_context_data(self, **kwargs):
         context = kwargs
-        print(self.request.user)
         user = kwargs['object']
+        following = Subscriptions.objects.filter(subscriber=self.request.user,
+                                                 writer=user)
         context['posts'] = user.post.all()
-        context['user'] = kwargs['object']
+        context['user_profile'] = kwargs['object']
+        context['following'] = following
         return context
 
 

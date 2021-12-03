@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from .views import (ListPost, UserProfile, ListPostSubscriptions, FollowUser,
-                    UnFollowUser)
+                    UnFollowUser, AddReadEnd)
 
 urlpatterns = [
     # Домашняяя станица
@@ -17,5 +17,7 @@ urlpatterns = [
     # Отписка от пользователя
     path('<str:username>/unfollow/', UnFollowUser.as_view(),
          name='un-follow-user'),
+    # Добовление в прочитаное
+    path('read-ends/<int:id>', AddReadEnd.as_view(), name='add-read-end'),
 
 ]

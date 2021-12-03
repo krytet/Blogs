@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import ListView, DetailView
 from django.contrib.auth import get_user_model
 
@@ -44,23 +44,16 @@ class ListPostSubscriptions(ListView):
 
     def get_context_data(self, **kwargs):
         user = self.request.user
-        #posts = Post.objects.filter(author__writer__subscriber=user).order_by('-id')
         posts = Post.objects.filter(author__writer__subscriber=user).order_by('-id')
-
+        # добавление временной переменной о состояни прочтения
         for i in range(len(posts)):
             if posts[i].read_end.all().filter(author=user).exists():
                 posts[i].read = True
             else:
                 posts[i].read = False
-        for post in posts:
-            print(post.read)
-
         context = super().get_context_data(**kwargs)
         context['posts'] = posts
         context['user'] = user
-        print(posts)
-        print(kwargs)
-        print(super().get_context_data(**kwargs))
         return context
 
 
@@ -74,7 +67,6 @@ class FollowUser(DetailView):
 
     def get(self, request, *args, **kwargs):
         user = self.get_object()
-        print(request.user)
         Subscriptions.objects.get_or_create(subscriber=request.user,
                                             writer=user)
         return redirect(f'/users/{user.username}/')
@@ -90,7 +82,24 @@ class UnFollowUser(DetailView):
 
     def get(self, request, *args, **kwargs):
         user = self.get_object()
-        print(request.user)
         follow = Subscriptions.objects.get(subscriber=request.user, writer=user)
         follow.delete()
         return redirect(f'/users/{user.username}/')
+
+
+# Добавление в прочитанное
+class AddReadEnd(DetailView):
+
+    model = Post
+    queryset = Post.objects.all()
+    slug_field = 'id'
+    slug_url_kwarg = 'id'
+
+    def get(self, request, *args, **kwargs):
+        post = self.get_object()
+        user = request.user
+        follow = get_object_or_404(Subscriptions, subscriber=user,
+                                   writer=post.author)
+        ReadEnd.objects.get_or_create(author=user, subscription=follow,
+                                      post=post)
+        return redirect('subscriptions')

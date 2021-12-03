@@ -6,7 +6,7 @@
     <div class="post-date-and-read">
         <span>{{ post.pub_date }}</span>
         {% if site == 'subsribe' %}
-            <span><a href="#">Добавить в прочитаное</a></span>
+            <span><a href={% url 'add-read-end' post.id %}>Добавить в прочитаное</a></span>
         {% endif %}
     </div>
 </div>

@@ -4,7 +4,9 @@ from django.contrib.auth import get_user_model
 
 from .models import Post, Subscriptions, ReadEnd
 
+
 User = get_user_model()
+
 
 class ListPost(ListView):
 
@@ -42,10 +44,20 @@ class ListPostSubscriptions(ListView):
 
     def get_context_data(self, **kwargs):
         user = self.request.user
+        #posts = Post.objects.filter(author__writer__subscriber=user).order_by('-id')
         posts = Post.objects.filter(author__writer__subscriber=user).order_by('-id')
-        #context = {}
+
+        for i in range(len(posts)):
+            if posts[i].read_end.all().filter(author=user).exists():
+                posts[i].read = True
+            else:
+                posts[i].read = False
+        for post in posts:
+            print(post.read)
+
         context = super().get_context_data(**kwargs)
         context['posts'] = posts
+        context['user'] = user
         print(posts)
         print(kwargs)
         print(super().get_context_data(**kwargs))

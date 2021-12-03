@@ -6,7 +6,7 @@
     <p>{{ posts }}</p>
         <h1>Новые посты подписок</h1>
         {% for post in posts %}
-            {% include "posts/post_item.html" with post=post site='subsribe' %}
+            {% include "posts/post_item.html" with post=post site='subsribe' user=user %}
         {% endfor %}
 
 </div>

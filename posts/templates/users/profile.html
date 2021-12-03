@@ -3,12 +3,17 @@
 {% block title %} Последние обновления {% endblock %}
 
 {% block content %}
-<div class="container">
+<h1>Profile</h1>
+<div class="profile">
+    <div class="profile-list">
+        <h1>{{ user }}</h1>
 
+    </div>
+    <div class="post-list">
         <h1>Последние обновления на сайте</h1>
         {% for post in posts %}
             {% include "posts/post_item.html" with post=post %}
         {% endfor %}
-
+    </div>
 </div>
 {% endblock %} 

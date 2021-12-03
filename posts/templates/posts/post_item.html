@@ -1,0 +1,11 @@
+<div class="list-post">
+    <a href="/users/{{ post.author }}"><h2>{{ post.author }}</h2></a>
+    <h3>{{ post.title }}</h3>
+    <p>{{ post.text }}</p>
+    <div class="post-date-and-read">
+        <span>{{ post.pub_date }}</span>
+        {% if site == 'subsribe' %}
+            <span><a href="#">Добавить в прочитаное</a></span>
+        {% endif %}
+    </div>
+</div>

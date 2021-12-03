@@ -1,5 +1,6 @@
+from django.http.request import QueryDict
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, FormView, CreateView
 from django.contrib.auth import get_user_model
 
 from .models import Post, Subscriptions, ReadEnd
@@ -8,6 +9,20 @@ from .models import Post, Subscriptions, ReadEnd
 User = get_user_model()
 
 
+# Создание нового поста
+class NewPost(CreateView):
+    
+    model = Post
+    fields = ['title', 'text']
+    template_name = 'posts/new_post.html'
+    success_url = '/'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+
+# Вывод список новых постов
 class ListPost(ListView):
 
     model = Post
@@ -17,6 +32,7 @@ class ListPost(ListView):
     ordering = ['-id']
 
 
+# Вывод постов пользователя
 class UserProfile(DetailView):
 
     model = User
@@ -34,6 +50,7 @@ class UserProfile(DetailView):
         return context
 
 
+# Вывод новых постов подписок
 class ListPostSubscriptions(ListView):
 
     model = Post

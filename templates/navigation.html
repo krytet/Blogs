@@ -6,7 +6,7 @@
         Пользователь: {{ user.username }}.
         <a class="nav-link" href="{% url 'user-profile' user.username %}">Моя страница</a>
         <a class="nav-link" href="{% url 'subscriptions' %}">Подписки</a>
-        <a class="nav-link" href="{% url 'index' %}">Новый пост</a>
+        <a class="nav-link" href="{% url 'new-post' %}">Новый пост</a>
         <a class="nav-link" href="{% url 'index' %}">Выйти</a>
         {% else %}
         <a class="nav-link" href="{% url 'index' %}">Войти</a> |

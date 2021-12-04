@@ -1,11 +1,10 @@
 <div class="list-post">
     <a href="{% url 'user-profile' post.author %}"><h2>{{ post.author }}</h2></a>
-    <h3>{{ post.title }}</h3>
-    <h3>{{ post.read }}</h3>
+    <h3>{{ post.title }} {% if site == 'subsribe' and not post.read %}<span style="color: rgb(255, 0, 0); font-size: 12px; font-family: Arial"> NEW</span>{% endif %} </h3>
     <p>{{ post.text }}</p>
     <div class="post-date-and-read">
         <span>{{ post.pub_date }}</span>
-        {% if site == 'subsribe' %}
+        {% if site == 'subsribe' and not post.read %}
             <span><a href={% url 'add-read-end' post.id %}>Добавить в прочитаное</a></span>
         {% endif %}
     </div>

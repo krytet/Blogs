@@ -6,9 +6,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <title>{% block title %}Блоги{% endblock %} | BlogSite</title>
         <h1>{% block header %}{% endblock %}</h1>
-        <!-- Загрузка статики -->
-        {% load static %}
-        <link rel="stylesheet" href="{% static 'static/css/style.css' %}" type="text/css">
     </head>
     <body>
         {% include 'navigation.html' %}

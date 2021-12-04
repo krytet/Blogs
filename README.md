@@ -60,8 +60,6 @@ sudo docker-compose up -d --build
     ```
     sudo docker-compose exec python manage.py migrate --noinput
     ```
-
-    ```
     - Создать суперпользователя Django:
     ```
     sudo docker-compose exec backend python manage.py createsuperuser

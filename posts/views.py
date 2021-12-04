@@ -1,12 +1,41 @@
-from django.http.request import QueryDict
-from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import ListView, DetailView, FormView, CreateView
+import threading
+from django.shortcuts import get_object_or_404, redirect
+from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
 
 from .models import Post, Subscriptions, ReadEnd
 
 
 User = get_user_model()
+
+
+def spam_massage(title, text, post):
+    recipient_list = []
+    users = post.author.writer.all()
+    for user in users:
+        recipient_list.append(user.subscriber.email)
+    send_mail(title, text, 'admin@blog.ru', recipient_list)
+
+
+
+# Добавление в прочитанное
+class SendMassage(DetailView):
+
+    model = Post
+    queryset = Post.objects.all()
+    slug_field = 'id'
+    slug_url_kwarg = 'id'
+    
+    def get(self, request, *args, **kwargs):
+        post = request.user.post.all().order_by('-id')[:1][0]
+        title = 'Новый пост у пользователя {post.author}'
+        text = f'У пользователя {post.author} на которого вы подписаны, ' + \
+               f'опубликовал новый пост "{post.title}" можете с ним ' + \
+               f'ознакомиться по ссылке <a href="/post/{post.id}/">кликни</a>'
+        th = threading.Thread(target=spam_massage(title, text, post))
+        th.start() 
+        return redirect('index')
 
 
 # Создание нового поста
@@ -15,7 +44,7 @@ class NewPost(CreateView):
     model = Post
     fields = ['title', 'text']
     template_name = 'posts/new_post.html'
-    success_url = '/'
+    success_url = '/email-spam/'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -30,6 +59,22 @@ class ListPost(ListView):
     template_name = 'index.html'
     context_object_name = 'posts'
     ordering = ['-id']
+
+
+# Вывод определенного поста
+class PostView(DetailView):
+
+    model = Post
+    queryset = Post.objects.all()
+    template_name = 'posts/post-detail.html'
+    slug_field = 'id'
+    slug_url_kwarg = 'id'
+    context_object_name = 'posts'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user_profile'] = context['posts'].author
+        return context
 
 
 # Вывод постов пользователя

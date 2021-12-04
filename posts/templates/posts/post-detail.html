@@ -1,0 +1,22 @@
+
+{% extends "base.html" %}
+{% block title %} Новый пост {{ user_profile }} {% endblock %}
+
+{% block content %}
+<h1>Profile</h1>
+<div class="profile">
+    <div class="profile-list">
+        <h1>{{ user_profile }}</h1>
+        <h2>{{ user_profile.first_name }} {{ user_profile.last_name }}</h2>
+        <h3>Постов: {{ user_profile.post.count }}</h3>
+        <h3>Подписчиков: {{ user_profile.writer.count }}; Подписок: {{ user_profile.subscriber.count }}</h3>
+
+    </div>
+    <div class="post-list">
+        <h1>Новый пост</h1>
+        
+        {% include "posts/post_item.html" with post=posts %}
+        
+    </div>
+</div>
+{% endblock %} 

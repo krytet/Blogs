@@ -1,11 +1,11 @@
 import threading
-from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import ListView, DetailView, CreateView
+
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404, redirect
+from django.views.generic import CreateView, DetailView, ListView
 
-from .models import Post, Subscriptions, ReadEnd
-
+from .models import Post, ReadEnd, Subscriptions
 
 User = get_user_model()
 
@@ -18,7 +18,6 @@ def spam_massage(title, text, post):
     send_mail(title, text, 'admin@blog.ru', recipient_list)
 
 
-
 # Добавление в прочитанное
 class SendMassage(DetailView):
 
@@ -26,7 +25,7 @@ class SendMassage(DetailView):
     queryset = Post.objects.all()
     slug_field = 'id'
     slug_url_kwarg = 'id'
-    
+
     def get(self, request, *args, **kwargs):
         post = request.user.post.all().order_by('-id')[:1][0]
         title = 'Новый пост у пользователя {post.author}'
@@ -34,13 +33,13 @@ class SendMassage(DetailView):
                f'опубликовал новый пост "{post.title}" можете с ним ' + \
                f'ознакомиться по ссылке <a href="/post/{post.id}/">кликни</a>'
         th = threading.Thread(target=spam_massage(title, text, post))
-        th.start() 
+        th.start()
         return redirect('index')
 
 
 # Создание нового поста
 class NewPost(CreateView):
-    
+
     model = Post
     fields = ['title', 'text']
     template_name = 'posts/new_post.html'
@@ -108,7 +107,8 @@ class ListPostSubscriptions(ListView):
 
     def get_context_data(self, **kwargs):
         user = self.request.user
-        posts = Post.objects.filter(author__writer__subscriber=user).order_by('-id')
+        posts = Post.objects.filter(author__writer__subscriber=user) \
+                    .order_by('-id')
         # добавление временной переменной о состояни прочтения
         for i in range(len(posts)):
             if posts[i].read_end.all().filter(author=user).exists():
@@ -134,11 +134,11 @@ class FollowUser(DetailView):
         Subscriptions.objects.get_or_create(subscriber=request.user,
                                             writer=user)
         return redirect(f'/users/{user.username}/')
-    
+
 
 # Отписка от пользователя
 class UnFollowUser(DetailView):
-    
+
     model = User
     queryset = User.objects.all()
     slug_field = 'username'
@@ -146,7 +146,8 @@ class UnFollowUser(DetailView):
 
     def get(self, request, *args, **kwargs):
         user = self.get_object()
-        follow = Subscriptions.objects.get(subscriber=request.user, writer=user)
+        follow = Subscriptions.objects.get(subscriber=request.user,
+                                           writer=user)
         follow.delete()
         return redirect(f'/users/{user.username}/')
 

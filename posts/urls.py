@@ -1,8 +1,7 @@
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 
-from .views import (ListPost, UserProfile, ListPostSubscriptions, FollowUser,
-                    UnFollowUser, AddReadEnd, NewPost, SendMassage, PostView)
+from .views import (AddReadEnd, FollowUser, ListPost, ListPostSubscriptions,
+                    NewPost, PostView, SendMassage, UnFollowUser, UserProfile)
 
 urlpatterns = [
     # Домашняяя станица

@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import CreateView, DetailView, ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import Post, ReadEnd, Subscriptions
 
@@ -19,7 +20,7 @@ def spam_massage(title, text, post):
 
 
 # Добавление в прочитанное
-class SendMassage(DetailView):
+class SendMassage(LoginRequiredMixin, DetailView):
 
     model = Post
     queryset = Post.objects.all()
@@ -38,7 +39,7 @@ class SendMassage(DetailView):
 
 
 # Создание нового поста
-class NewPost(CreateView):
+class NewPost(LoginRequiredMixin, CreateView):
 
     model = Post
     fields = ['title', 'text']
@@ -88,16 +89,18 @@ class UserProfile(DetailView):
     def get_context_data(self, **kwargs):
         context = kwargs
         user = kwargs['object']
-        following = Subscriptions.objects.filter(subscriber=self.request.user,
-                                                 writer=user)
         context['posts'] = user.post.all()
         context['user_profile'] = kwargs['object']
-        context['following'] = following
+        if self.request.user.is_authenticated:
+            following = Subscriptions.objects.filter(
+                                                 subscriber=self.request.user,
+                                                 writer=user)
+            context['following'] = following
         return context
 
 
 # Вывод новых постов подписок
-class ListPostSubscriptions(ListView):
+class ListPostSubscriptions(LoginRequiredMixin, ListView):
 
     model = Post
     queryset = Post.objects.all()
@@ -122,7 +125,7 @@ class ListPostSubscriptions(ListView):
 
 
 # Подписка на пользователей
-class FollowUser(DetailView):
+class FollowUser(LoginRequiredMixin, DetailView):
 
     model = User
     queryset = User.objects.all()
@@ -137,7 +140,7 @@ class FollowUser(DetailView):
 
 
 # Отписка от пользователя
-class UnFollowUser(DetailView):
+class UnFollowUser(LoginRequiredMixin, DetailView):
 
     model = User
     queryset = User.objects.all()
@@ -153,7 +156,7 @@ class UnFollowUser(DetailView):
 
 
 # Добавление в прочитанное
-class AddReadEnd(DetailView):
+class AddReadEnd(LoginRequiredMixin, DetailView):
 
     model = Post
     queryset = Post.objects.all()

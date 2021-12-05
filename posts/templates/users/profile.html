@@ -10,11 +10,13 @@
         <h2>{{ user_profile.first_name }} {{ user_profile.last_name }}</h2>
         <h3>Постов: {{ user_profile.post.count }}</h3>
         <h3>Подписчиков: {{ user_profile.writer.count }}; Подписок: {{ user_profile.subscriber.count }}</h3>
-        {% if user_profile != user %}
-            {% if following %}
-                <a href="{% url 'un-follow-user'  user_profile.username %}" role="button">Отписаться</a>
-            {% else %}
-                <a href="{% url 'follow-user' user_profile.username %}" role="button">Подписаться</a>
+        {% if user.is_authenticated %}
+            {% if user_profile != user %}
+                {% if following %}
+                    <a href="{% url 'un-follow-user'  user_profile.username %}" role="button">Отписаться</a>
+                {% else %}
+                    <a href="{% url 'follow-user' user_profile.username %}" role="button">Подписаться</a>
+                {% endif %}
             {% endif %}
         {% endif %}
 

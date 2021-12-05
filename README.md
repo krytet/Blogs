@@ -42,8 +42,8 @@ scp nginx.conf <username>@<host>:/home/<username>/nginx.conf
     DB_NAME=<имя базы данных postgres>
     DB_USER=<пользователь бд>
     DB_PASSWORD=<пароль>
-    POSTGRES_USER=Postgres
-    POSTGRES_PASSWORD=Postgres
+    POSTGRES_USER=<пользователь бд>
+    POSTGRES_PASSWORD=<пароль>
     DB_HOST=<db>
     DB_PORT=<5432>
     SECRET_KEY=<секретный ключ проекта django>

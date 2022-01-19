@@ -1,27 +1,24 @@
 from django.urls import path
 
 from .views import (AddReadEnd, FollowUser, ListPost, ListPostSubscriptions,
-                    NewPost, PostView, SendMassage, UnFollowUser, UserProfile)
+                    NewPost, PostView, UserProfile)
 
 urlpatterns = [
     # Домашняяя станица
     path('', ListPost.as_view(), name='index'),
     # Новый пост
-    path('new-posts/', NewPost.as_view(), name='new-post'),
+    path('posts/create/', NewPost.as_view(), name='new-post'),
     # Просмотр поста
-    path('post/<int:id>/', PostView.as_view(), name='post-detail'),
+    path('posts/<int:id>/', PostView.as_view(), name='post-detail'),
+    # Добовление в прочитаное
+    path('posts/<int:id>/read-ends/', AddReadEnd.as_view(),
+         name='add-read-end'),
     # Профиль пользователей
     path('users/<str:username>/', UserProfile.as_view(), name='user-profile'),
+    # Подписка/Отписка на пользователя
+    path('users/<str:username>/follow/', FollowUser.as_view(),
+         name='follow-user'),
     # Список постов на кого подписан
     path('subscriptions/', ListPostSubscriptions.as_view(),
          name='subscriptions'),
-    # Подписка на пользователя
-    path('<str:username>/follow/', FollowUser.as_view(), name='follow-user'),
-    # Отписка от пользователя
-    path('<str:username>/unfollow/', UnFollowUser.as_view(),
-         name='un-follow-user'),
-    # Добовление в прочитаное
-    path('read-ends/<int:id>', AddReadEnd.as_view(), name='add-read-end'),
-    # Уведомление о новом  посте
-    path('email-spam/', SendMassage.as_view(), name='posts-email'),
 ]

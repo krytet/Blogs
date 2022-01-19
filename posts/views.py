@@ -1,41 +1,12 @@
-import threading
-
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import CreateView, DetailView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DetailView, ListView
 
 from .models import Post, ReadEnd, Subscriptions
 
 User = get_user_model()
-
-
-def spam_massage(title, text, post):
-    recipient_list = []
-    users = post.author.writer.all()
-    for user in users:
-        recipient_list.append(user.subscriber.email)
-    send_mail(title, text, 'admin@blog.ru', recipient_list)
-
-
-# Добавление в прочитанное
-class SendMassage(LoginRequiredMixin, DetailView):
-
-    model = Post
-    queryset = Post.objects.all()
-    slug_field = 'id'
-    slug_url_kwarg = 'id'
-
-    def get(self, request, *args, **kwargs):
-        post = request.user.post.all().order_by('-id')[:1][0]
-        title = 'Новый пост у пользователя {post.author}'
-        text = f'У пользователя {post.author} на которого вы подписаны, ' + \
-               f'опубликовал новый пост "{post.title}" можете с ним ' + \
-               f'ознакомиться по ссылке <a href="/post/{post.id}/">кликни</a>'
-        th = threading.Thread(target=spam_massage(title, text, post))
-        th.start()
-        return redirect('index')
 
 
 # Создание нового поста
@@ -44,7 +15,7 @@ class NewPost(LoginRequiredMixin, CreateView):
     model = Post
     fields = ['title', 'text']
     template_name = 'posts/new_post.html'
-    success_url = '/email-spam/'
+    success_url = reverse_lazy('index')
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -124,7 +95,7 @@ class ListPostSubscriptions(LoginRequiredMixin, ListView):
         return context
 
 
-# Подписка на пользователей
+# Подписка/Отписка на пользователей
 class FollowUser(LoginRequiredMixin, DetailView):
 
     model = User
@@ -134,24 +105,13 @@ class FollowUser(LoginRequiredMixin, DetailView):
 
     def get(self, request, *args, **kwargs):
         user = self.get_object()
-        Subscriptions.objects.get_or_create(subscriber=request.user,
-                                            writer=user)
-        return redirect(f'/users/{user.username}/')
-
-
-# Отписка от пользователя
-class UnFollowUser(LoginRequiredMixin, DetailView):
-
-    model = User
-    queryset = User.objects.all()
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
-
-    def get(self, request, *args, **kwargs):
-        user = self.get_object()
-        follow = Subscriptions.objects.get(subscriber=request.user,
-                                           writer=user)
-        follow.delete()
+        subscription, is_create = Subscriptions.objects.get_or_create(
+            subscriber=request.user,
+            writer=user
+        )
+        # если есть подписка то удаляем
+        if not is_create:
+            subscription.delete()
         return redirect(f'/users/{user.username}/')
 
 

@@ -1,7 +1,19 @@
+import threading
+
 from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 User = get_user_model()
+
+
+def spam_massage(title, text, post):
+    # Получение Email пользоветелей которые подписанны на создателя
+    emails = list(post.author.writer.all().values_list('subscriber__email',
+                                                       flat=True))
+    send_mail(title, text, 'admin@blog.ru', emails)
 
 
 class Post(models.Model):
@@ -18,6 +30,25 @@ class Post(models.Model):
 
     def __str__(self):
         return f'{self.id} {self.author}: {self.title}'
+
+
+# Cигнал на создание/изменение поста
+@receiver(post_save, sender=Post)
+def create_post_profile(sender, instance, created, **kwargs):
+    if created:
+        title = f'У пользователя {instance.author} появился новый пост'
+        text = f'У пользователя {instance.author} на которого вы подписаны' + \
+               f', опубликован новый пост "{instance.title}" можете с ним ' + \
+               f'ознакомся по ссылке <a href="/posts/{instance.id}/">' + \
+               'кликни</a>'
+    else:
+        title = f'У пользователя {instance.author} изменился пост'
+        text = f'У пользователя {instance.author} на которого вы подписаны' + \
+               f', изменился пост "{instance.title}" можете с ним ' + \
+               f'ознакомся по ссылке <a href="/posts/{instance.id}/">' + \
+               'кликни</a>'
+    th = threading.Thread(target=spam_massage(title, text, instance))
+    th.start()
 
 
 class Subscriptions(models.Model):
